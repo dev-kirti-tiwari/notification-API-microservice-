@@ -1,79 +1,138 @@
 {
   "info": {
     "name": "Triostack Notification API Microservice",
-    "description": "API collection for Triostack multi-tenant notification microservice",
+    "description": "API collection for Triostack multi-tenant notification microservice with dynamic ID chaining",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4010",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "triostack_secret_notification_token_2026",
+      "type": "string"
+    },
+    {
+      "key": "tenantId",
+      "value": "1001",
+      "type": "string"
+    },
+    {
+      "key": "orgId",
+      "value": "5001",
+      "type": "string"
+    },
+    {
+      "key": "softwareId",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "501233",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "90000000104",
+      "type": "string"
+    }
+  ],
   "item": [
     {
-      "name": "Health Probe",
+      "name": "1. Health Probe",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:4010/health",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
           "path": ["health"]
         }
       }
     },
     {
-      "name": "Readiness Probe",
+      "name": "2. Readiness Probe",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:4010/ready",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/ready",
+          "host": ["{{baseUrl}}"],
           "path": ["ready"]
         }
       }
     },
     {
-      "name": "Create Notification",
+      "name": "3. Create Notification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.data && jsonData.data.id) {",
+              "    pm.collectionVariables.set('notification_id', jsonData.data.id);",
+              "    console.log('Captured notification_id:', jsonData.data.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "Idempotency-Key", "value": "lead-88912-assigned-501233" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "Idempotency-Key", "value": "lead-88912-{{$timestamp}}" },
           { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"recipient_user_id\": \"501233\",\n  \"actor_user_id\": \"501099\",\n  \"event_key\": \"LEAD_ASSIGNED\",\n  \"title\": \"New Lead Assigned\",\n  \"message\": \"Rahul Sharma has been assigned to you.\",\n  \"channel\": \"IN_APP\",\n  \"priority\": \"NORMAL\",\n  \"related_entity_type\": \"LEAD\",\n  \"related_entity_id\": \"88912\",\n  \"action_url\": \"/crm/leads/88912\",\n  \"metadata\": { \"source\": \"META_ADS\" }\n}"
+          "raw": "{\n  \"recipient_user_id\": \"{{userId}}\",\n  \"actor_user_id\": \"501099\",\n  \"event_key\": \"LEAD_ASSIGNED\",\n  \"title\": \"New Lead Assigned\",\n  \"message\": \"Rahul Sharma has been assigned to you.\",\n  \"channel\": \"IN_APP\",\n  \"priority\": \"NORMAL\",\n  \"related_entity_type\": \"LEAD\",\n  \"related_entity_id\": \"88912\",\n  \"action_url\": \"/crm/leads/88912\",\n  \"metadata\": { \"source\": \"META_ADS\" }\n}"
         },
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/api/v1/notifications",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "notifications"]
         }
       }
     },
     {
-      "name": "List User Notifications",
+      "name": "4. List User Notifications",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.data && jsonData.data.length > 0) {",
+              "    pm.collectionVariables.set('notification_id', jsonData.data[0].id);",
+              "    console.log('Set notification_id from inbox:', jsonData.data[0].id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications?page=1&limit=20",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/api/v1/notifications?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "notifications"],
           "query": [
             { "key": "page", "value": "1" },
@@ -83,102 +142,92 @@
       }
     },
     {
-      "name": "Get Unread Count",
+      "name": "5. Get Unread Count",
       "request": {
         "method": "GET",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications/unread-count",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/api/v1/notifications/unread-count",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "notifications", "unread-count"]
         }
       }
     },
     {
-      "name": "Get Notification by ID",
+      "name": "6. Get Notification by ID",
       "request": {
         "method": "GET",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications/90000000101",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
-          "path": ["api", "v1", "notifications", "90000000101"]
+          "raw": "{{baseUrl}}/api/v1/notifications/{{notification_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "notifications", "{{notification_id}}"]
         }
       }
     },
     {
-      "name": "Mark as Read",
+      "name": "7. Mark as Read",
       "request": {
         "method": "PATCH",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications/90000000101/read",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
-          "path": ["api", "v1", "notifications", "90000000101", "read"]
+          "raw": "{{baseUrl}}/api/v1/notifications/{{notification_id}}/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "notifications", "{{notification_id}}", "read"]
         }
       }
     },
     {
-      "name": "Mark All as Read",
+      "name": "8. Mark All as Read",
       "request": {
         "method": "PATCH",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications/read-all",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
+          "raw": "{{baseUrl}}/api/v1/notifications/read-all",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "notifications", "read-all"]
         }
       }
     },
     {
-      "name": "Soft Delete Notification",
+      "name": "9. Soft Delete Notification",
       "request": {
         "method": "DELETE",
         "header": [
-          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
-          { "key": "X-Tenant-Id", "value": "1001" },
-          { "key": "X-Organization-Id", "value": "5001" },
-          { "key": "X-Software-Id", "value": "10" },
-          { "key": "X-User-Id", "value": "501233" }
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Organization-Id", "value": "{{orgId}}" },
+          { "key": "X-Software-Id", "value": "{{softwareId}}" },
+          { "key": "X-User-Id", "value": "{{userId}}" }
         ],
         "url": {
-          "raw": "http://localhost:4010/api/v1/notifications/90000000101",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4010",
-          "path": ["api", "v1", "notifications", "90000000101"]
+          "raw": "{{baseUrl}}/api/v1/notifications/{{notification_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "notifications", "{{notification_id}}"]
         }
       }
     }
