@@ -98,4 +98,52 @@ describe('tenantContextMiddleware Unit Tests', () => {
       })
     );
   });
+
+  it('should reject missing X-Software-Id header', () => {
+    mockRequest = {
+      headers: {
+        'x-tenant-id': '1001',
+        'x-organization-id': '5001',
+      },
+    };
+
+    tenantContextMiddleware(mockRequest as Request, mockResponse as Response, nextFunction);
+
+    expect(nextFunction).not.toHaveBeenCalled();
+    expect(mockResponse.status).toHaveBeenCalledWith(400);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          code: 'INVALID_CONTEXT_HEADERS',
+          message: expect.stringContaining('X-Software-Id'),
+        }),
+      })
+    );
+  });
+
+  it('should reject non-numeric X-User-Id header if provided', () => {
+    mockRequest = {
+      headers: {
+        'x-tenant-id': '1001',
+        'x-organization-id': '5001',
+        'x-software-id': '10',
+        'x-user-id': 'non-numeric-user',
+      },
+    };
+
+    tenantContextMiddleware(mockRequest as Request, mockResponse as Response, nextFunction);
+
+    expect(nextFunction).not.toHaveBeenCalled();
+    expect(mockResponse.status).toHaveBeenCalledWith(400);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          code: 'INVALID_CONTEXT_HEADERS',
+          message: expect.stringContaining('X-User-Id'),
+        }),
+      })
+    );
+  });
 });
