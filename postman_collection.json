@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "Triostack Notification API Microservice",
+    "description": "API collection for Triostack multi-tenant notification microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Probe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4010/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Readiness Probe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4010/ready",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["ready"]
+        }
+      }
+    },
+    {
+      "name": "Create Notification",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "Idempotency-Key", "value": "lead-88912-assigned-501233" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recipient_user_id\": \"501233\",\n  \"actor_user_id\": \"501099\",\n  \"event_key\": \"LEAD_ASSIGNED\",\n  \"title\": \"New Lead Assigned\",\n  \"message\": \"Rahul Sharma has been assigned to you.\",\n  \"channel\": \"IN_APP\",\n  \"priority\": \"NORMAL\",\n  \"related_entity_type\": \"LEAD\",\n  \"related_entity_id\": \"88912\",\n  \"action_url\": \"/crm/leads/88912\",\n  \"metadata\": { \"source\": \"META_ADS\" }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications"]
+        }
+      }
+    },
+    {
+      "name": "List User Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications?page=1&limit=20",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Unread Count",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications/unread-count",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications", "unread-count"]
+        }
+      }
+    },
+    {
+      "name": "Get Notification by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications/90000000101",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications", "90000000101"]
+        }
+      }
+    },
+    {
+      "name": "Mark as Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications/90000000101/read",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications", "90000000101", "read"]
+        }
+      }
+    },
+    {
+      "name": "Mark All as Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications/read-all",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications", "read-all"]
+        }
+      }
+    },
+    {
+      "name": "Soft Delete Notification",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer triostack_secret_notification_token_2026" },
+          { "key": "X-Tenant-Id", "value": "1001" },
+          { "key": "X-Organization-Id", "value": "5001" },
+          { "key": "X-Software-Id", "value": "10" },
+          { "key": "X-User-Id", "value": "501233" }
+        ],
+        "url": {
+          "raw": "http://localhost:4010/api/v1/notifications/90000000101",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4010",
+          "path": ["api", "v1", "notifications", "90000000101"]
+        }
+      }
+    }
+  ]
+}

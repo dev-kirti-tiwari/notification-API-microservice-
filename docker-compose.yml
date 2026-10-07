@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: triostack-notification-service
+    ports:
+      - "4010:4010"
+    environment:
+      PORT: 4010
+      NODE_ENV: production
+      BRR_TOKEN: triostack_secret_notification_token_2026
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      DB_NAME: triostack_notifications
+      DB_SSL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: triostack-notification-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: triostack_notifications
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/database/migrations/001_create_notifications.sql:/docker-entrypoint-initdb.d/001_create_notifications.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d triostack_notifications"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
