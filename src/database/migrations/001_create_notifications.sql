@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   tenant_id BIGINT NOT NULL,
   organization_id BIGINT NOT NULL,
-  software_id BIGINT NOT NULL,
+  software_id VARCHAR(50) NOT NULL,
   recipient_user_id BIGINT NOT NULL,
   actor_user_id BIGINT NULL,
   event_key VARCHAR(100) NOT NULL,
